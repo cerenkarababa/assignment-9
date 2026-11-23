@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import {
   getBooks,
+  getStats,
   createBook,
   updateBook,
   patchBook,
@@ -18,6 +19,9 @@ function App() {
   const [read, setRead] = useState("");
   const [sort, setSort] = useState("id");
   const [order, setOrder] = useState("asc");
+
+  const [stats, setStats] = useState(null);
+  const [statsError, setStatsError] = useState("");
 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -63,11 +67,25 @@ function App() {
     }
   }
 
+  async function loadStats() {
+    try {
+      setStatsError("");
+      const data = await getStats();
+      setStats(data);
+    } catch (err) {
+      setStatsError(err.message);
+    }
+  }
+
   useEffect(() => {
     const controller = new AbortController();
     loadBooks(controller.signal);
     return () => controller.abort();
   }, [search, genre, read, sort, order]);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
 
   function handleInputChange(event) {
     const { name, value } = event.target;
@@ -107,6 +125,7 @@ function App() {
       setOrder("asc");
 
       await loadBooks();
+      await loadStats();
     } catch (err) {
       setFormError(err.message);
     } finally {
@@ -125,6 +144,7 @@ function App() {
       });
 
       await loadBooks();
+      await loadStats();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -139,6 +159,7 @@ function App() {
 
       await patchBook(book.id, { rating });
       await loadBooks();
+      await loadStats();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -159,6 +180,7 @@ function App() {
 
       await deleteBook(book.id);
       await loadBooks();
+      await loadStats();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -202,6 +224,7 @@ function App() {
 
       setEditingBookId(null);
       await loadBooks();
+      await loadStats();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -225,6 +248,46 @@ function App() {
           <small>Books</small>
         </div>
       </header>
+
+      <section className="stats-section">
+        <div className="section-heading">
+          <h2>Reading Statistics</h2>
+        </div>
+
+        {statsError && <p className="error">{statsError}</p>}
+
+        {!stats && !statsError && (
+          <p className="status">Loading statistics...</p>
+        )}
+
+        {stats && (
+          <div className="stats-grid">
+            <article className="stat-card">
+              <span className="stat-label">Total Books</span>
+              <strong>{stats.total}</strong>
+            </article>
+
+            <article className="stat-card">
+              <span className="stat-label">Books Read</span>
+              <strong>{stats.read}</strong>
+            </article>
+
+            <article className="stat-card">
+              <span className="stat-label">Unread Books</span>
+              <strong>{stats.unread}</strong>
+            </article>
+
+            <article className="stat-card">
+              <span className="stat-label">Average Rating</span>
+              <strong>
+                {stats.averageRating === null
+                  ? "N/A"
+                  : `${stats.averageRating} / 5`}
+              </strong>
+            </article>
+          </div>
+        )}
+      </section>
 
       <section className="book-section">
         <div className="section-heading">
