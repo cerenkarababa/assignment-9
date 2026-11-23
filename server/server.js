@@ -379,9 +379,7 @@ app.delete("/api/books/:id", async (req, res) => {
 
   return res.status(204).end();
 });
-app.get("/api/crash", async (req, res) => {
-  throw new Error("Deliberate test error");
-});
+
 // GET /api/stats
 app.get("/api/stats", async (req, res) => {
   const stats = await getBookStats();
