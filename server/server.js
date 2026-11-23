@@ -1,6 +1,7 @@
 
 import express from "express";
 import cors from "cors";
+import { pathToFileURL } from "node:url";
 
 import {
   getAllBooks,
@@ -18,6 +19,7 @@ import {
 } from "./validate.js";
 
 const app = express();
+export { app };
 
 const PORT = process.env.PORT || 3000;
 
@@ -141,19 +143,16 @@ app.get("/api/books", async (req, res) => {
 
   let books = await getAllBooks();
 
-  // Genre filter
   if (genre) {
     books = books.filter(book => book.genre === genre);
   }
 
-  // Read filter
   if (read !== undefined) {
     books = books.filter(
       book => book.read === (read === "true")
     );
   }
 
-  // Search by title or author
   if (q !== undefined) {
     const search = q.toLowerCase();
 
@@ -163,7 +162,7 @@ app.get("/api/books", async (req, res) => {
     );
   }
 
-  // Sort books without modifying stored data
+  // Sort without modifying stored data
   books = [...books].sort((a, b) => {
     if (sort === "rating") {
       if (a.rating === null && b.rating === null) return 0;
@@ -413,7 +412,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Reading List API running on port ${PORT}`);
-});
+// Start server only when this file is run directly
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  app.listen(PORT, () => {
+    console.log(`Reading List API running on port ${PORT}`);
+  });
+}
