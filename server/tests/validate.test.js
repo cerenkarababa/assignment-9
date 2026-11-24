@@ -84,3 +84,45 @@ test("unknown fields should be filtered out", () => {
 
   assert.equal("unexpected" in result, false);
 });
+
+test("empty title should fail validation", () => {
+  const result = validateBook({
+    ...validBook,
+    title: "   "
+  });
+
+  assert.equal(result.valid, false);
+});
+
+test("empty author should fail validation", () => {
+  const result = validateBook({
+    ...validBook,
+    author: "   "
+  });
+
+  assert.equal(result.valid, false);
+});
+
+test("future year should fail validation", () => {
+  const result = validateBook({
+    ...validBook,
+    year: new Date().getFullYear() + 1
+  });
+
+  assert.equal(result.valid, false);
+});
+
+test("non-integer rating should fail validation", () => {
+  const result = validateBook({
+    ...validBook,
+    rating: 4.5
+  });
+
+  assert.equal(result.valid, false);
+});
+
+test("non-object data should fail validation", () => {
+  const result = validateBook(null);
+
+  assert.equal(result.valid, false);
+});
