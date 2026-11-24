@@ -226,3 +226,19 @@ test("OPTIONS preflight should return the allowed frontend origin", async () => 
   );
 });
 
+
+test("Unknown API route should return JSON 404", async () => {
+  const response = await fetch(`${baseUrl}/api/unknown-route`);
+  const data = await response.json();
+
+  assert.equal(response.status, 404);
+  assert.equal(data.error, "Not found");
+});
+
+test("DELETE /api/books with missing ID should return 404", async () => {
+  const response = await fetch(`${baseUrl}/api/books/9999`);
+  const data = await response.json();
+
+  assert.equal(response.status, 404);
+  assert.equal(data.error, "Book not found");
+});
