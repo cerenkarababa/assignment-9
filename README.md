@@ -863,3 +863,18 @@ Working through these challenges helped me understand how a frontend application
 This project helped me practice building a full-stack application using Express and React. I implemented a REST API, connected it to a frontend through a dedicated API module, and practiced CRUD operations, validation, CORS, asynchronous requests, and statistics.
 
 The project also helped me understand the importance of organizing code into separate modules and handling communication between the client and server correctly.
+
+### Browser Network Tab – CORS Preflight Evidence
+
+The CORS preflight request was verified in Chrome DevTools Network tab while changing a book's read status in the React application.
+
+Observed request and response:
+
+- Request type: `preflight` (OPTIONS)
+- Response status: `204 No Content`
+- `Access-Control-Allow-Origin: http://localhost:5173`
+- `Content-Type: application/json; charset=utf-8`
+- `Vary: Origin`
+- `X-Powered-By: Express`
+
+The browser successfully completed the preflight request before sending the actual PATCH request. This confirms that the Express API allows requests from the React client's configured origin.
