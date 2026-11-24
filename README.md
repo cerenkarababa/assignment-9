@@ -794,7 +794,7 @@ PUT is useful when replacing the complete information of a book, for example cha
 
 ### 5. CORS
 
-I temporarily changed the configured frontend origin to `http://localhost:9999` and restarted the server. I did not capture a conclusive browser console error or server-log observation during that attempt, so I cannot report an exact error message. After restoring the correct origin (`http://localhost:5173`), the books were visible in the frontend again. CORS is enforced by browsers; `curl` does not enforce browser CORS restrictions, so a command-line request can still receive a response even when a browser blocks access to it.
+I temporarily set `CLIENT_ORIGIN` to the incorrect value `http://localhost:9999` and restarted the server. In Chrome DevTools Console, I observed a CORS error stating that the `Access-Control-Allow-Origin` header had the value `http://localhost:9999`, which did not match the frontend origin `http://localhost:5173`. The browser displayed `Failed to fetch` because it blocked JavaScript from accessing the response. I did not observe a request log in the server terminal during this experiment. `curl` still works because it does not enforce browser CORS policies.
 
 ### 6. Validation
 
