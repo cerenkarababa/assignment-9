@@ -147,3 +147,82 @@ test("DELETE /api/books/1 should return 204", async () => {
   assert.equal(response.status, 204);
   assert.equal(await response.text(), "");
 });
+
+test("GET /api/books should filter books by genre and read status", async () => {
+  const response = await fetch(
+    `${baseUrl}/api/books?genre=fantasy&read=false`
+  );
+
+  const data = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.ok(data.length > 0);
+  assert.ok(data.every(book =>
+    book.genre === "fantasy" && book.read === false
+  ));
+});
+
+test("GET /api/books should reject repeated query parameters", async () => {
+  const response = await fetch(
+    `${baseUrl}/api/books?genre=fiction&genre=fantasy`
+  );
+
+  assert.equal(response.status, 400);
+});
+
+test("PUT /api/books/2 should replace the complete book", async () => {
+  const response = await fetch(`${baseUrl}/api/books/2`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      title: "Updated Science Book",
+      author: "Test Author",
+      year: 2022,
+      genre: "science",
+      read: false,
+      rating: null
+    })
+  });
+
+  const data = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(data.title, "Updated Science Book");
+  assert.equal(data.author, "Test Author");
+  assert.equal(data.rating, null);
+});
+
+test("POST /api/books should reject malformed JSON", async () => {
+  const response = await fetch(`${baseUrl}/api/books`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: '{"title":'
+  });
+
+  const data = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.equal(data.error, "Invalid JSON body");
+});
+
+test("OPTIONS preflight should return the allowed frontend origin", async () => {
+  const response = await fetch(`${baseUrl}/api/books/1`, {
+    method: "OPTIONS",
+    headers: {
+      "Origin": "http://localhost:5173",
+      "Access-Control-Request-Method": "PATCH",
+      "Access-Control-Request-Headers": "content-type"
+    }
+  });
+
+  assert.equal(response.status, 204);
+  assert.equal(
+    response.headers.get("access-control-allow-origin"),
+    "http://localhost:5173"
+  );
+});
+
